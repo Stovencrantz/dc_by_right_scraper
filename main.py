@@ -1,6 +1,8 @@
 import requests
 from requests_html import HTMLSession
 from bs4 import BeautifulSoup
+import inquirer
+import countySearch
 
 session = HTMLSession()
 URL = 'https://library.municode.com/'
@@ -17,10 +19,27 @@ state_elements = states_elements_container.find_all('li')
 #print("states list: ", states)
 stateDict = {}
 for state_element in state_elements:
-  state = state_element.text.strip('\n')
+  state = state_element.text.strip()
   link = state_element.find("a")["href"]
   stateDict[state] = link
 
 for x in stateDict:
   print(x + " : " + stateDict[x])
 
+questions = [
+  inquirer.List('state',
+                message="Please select a state to search:",
+              #  choices=stateDict.keys(),
+              choices=["Virginia"],)
+]
+
+answers = inquirer.prompt(questions)
+print(answers['state'])
+for x in stateDict:
+  if(answers['state'] == x): 
+    #search for a list of counties in the selected state
+    countySearch.county(stateDict[x])    
+
+
+
+  
