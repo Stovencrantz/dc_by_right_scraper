@@ -2,6 +2,7 @@ import requests
 from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 import inquirer
+import muniSearch
 
 def county(URL): 
   print("url passed: ", URL)
@@ -29,10 +30,10 @@ def county(URL):
               message="Please select a county to search:",
               choices=countyDict.keys(),)
 ]
-
+  #county user selected
   answers = inquirer.prompt(questions)
   print(answers['county'])
-  # for x in countyDict:
-  #   if(answers['county'] == x): 
-  #     #search for a list of municipalities in the selected county
-  #     countySearch.searchState(stateDict[x]) 
+  for x in countyDict:
+    if(answers['county'] == x): 
+      #search for a list of municipalities in the selected county
+      muniSearch.muni(countyDict[x]) 

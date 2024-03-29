@@ -32,7 +32,7 @@ questions = [
               #  choices=stateDict.keys(),
               choices=["Virginia"],)
 ]
-
+#state user selected
 answers = inquirer.prompt(questions)
 print(answers['state'])
 for x in stateDict:
