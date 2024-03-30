@@ -7,7 +7,7 @@ import countySearch
 session = HTMLSession()
 URL = 'https://library.municode.com/'
 page = session.get(URL)
-page.html.render()
+page.html.render(sleep = 3)
 #print(page.html.html)
 
 soup = BeautifulSoup(page.html.html, 'html.parser')

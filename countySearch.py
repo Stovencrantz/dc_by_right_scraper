@@ -10,7 +10,7 @@ def county(URL):
   session = HTMLSession()
   #page = session.get(URL)
   page = session.get(testURL)
-  page.html.render()
+  page.html.render(sleep = 3)
   soup = BeautifulSoup(page.html.html, 'html.parser')
 
   county_elements_container = soup.find_all('div', class_='container-fluid')[1]
@@ -28,7 +28,9 @@ def county(URL):
 
   questions = [inquirer.List('county',
               message="Please select a county to search:",
-              choices=countyDict.keys(),)
+              choices=["Prince William County"]
+              #choices=countyDict.keys()
+              ,)
 ]
   #county user selected
   answers = inquirer.prompt(questions)
