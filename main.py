@@ -6,9 +6,11 @@ import countySearch
 
 session = HTMLSession()
 URL = 'https://library.municode.com/'
-page = session.get(URL)
+headers = {"user-agent":"Mozilla/5.0"}
+page = session.get(URL, headers=headers)
 page.html.render(sleep = 3)
-#print(page.html.html)
+print("session header: ", page.request.headers)
+# Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36
 
 soup = BeautifulSoup(page.html.html, 'html.parser')
 states_elements_container = soup.find_all('div', class_='container-fluid')[1]
@@ -23,8 +25,8 @@ for state_element in state_elements:
   link = state_element.find("a")["href"]
   stateDict[state] = link
 
-for x in stateDict:
-  print(x + " : " + stateDict[x])
+# for x in stateDict:
+#   print(x + " : " + stateDict[x])
 
 questions = [
   inquirer.List('state',

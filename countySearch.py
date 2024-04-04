@@ -9,9 +9,12 @@ def county(URL):
   testURL = 'https://library.municode.com/va'
   session = HTMLSession()
   #page = session.get(URL)
-  page = session.get(testURL)
+  headers = {"user-agent":"Mozilla/5.0"}
+  page = session.get(URL, headers=headers)  
   page.html.render(sleep = 3)
   soup = BeautifulSoup(page.html.html, 'html.parser')
+  print("session header: ", page.request.headers)
+
 
   county_elements_container = soup.find_all('div', class_='container-fluid')[1]
   county_elements = county_elements_container.find_all('li')
@@ -23,8 +26,8 @@ def county(URL):
     link = county_element.find("a")["href"]
     countyDict[county] = link
 
-  for x in countyDict:
-    print(x + " : " + countyDict[x])
+  # for x in countyDict:
+  #   print(x + " : " + countyDict[x])
 
   questions = [inquirer.List('county',
               message="Please select a county to search:",
