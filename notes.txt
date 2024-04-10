@@ -1,0 +1,39 @@
+** Code page depth follows the following format: 
+State > County > Chapter > Article > Part > Section > content
+
+## Links to page containing Chapter 1 General Provisions - Prince William County - Virginia
+- Payload:
+  - JobId : 450310
+  - nodeId : CH1GEPR_S1-1H0C0DECI
+  - productId : 14114
+https://api.municode.com/CodesContent?jobId=450310&nodeId=CH1GEPR_S1-1HOCODECI&productId=14114
+
+## Link to page containing Sec 32-509.03 Uses permitted by right - Part 509 Data Center Opportunity Zone Overlay District - Article V Overlay Districts - 
+Chapter 32 Zoning - Prince William County - Virginia
+- Payload:
+  - JobId : 450310
+  - nodeId : CH32ZO_ARTVOVDI_PT509DACEOPZOOVDI_S32-509.03USPERI
+  - productId : 14114
+https://library.municode.com/va/prince_william_county/codes/code_of_ordinances?nodeId=CH32ZO_ARTVOVDI_PT509DACEOPZOOVDI_S32-509.03USPERI
+
+
+## Link to page containing Sec 7-1-47. - Table R301.2(1) amended - Article 2 Building and Structures - Division 1 Building Regulations - 
+Title 7 Land Use and Building Regulations - Orange County - California
+- Payload:
+  - JobId : 450310
+  - nodeId : CH32ZO_ARTVOVDI_PT509DACEOPZOOVDI_S32-509.03USPERI
+  - productId : 14114
+https://library.municode.com/ca/orange_county/codes/code_of_ordinances?nodeId=TIT7LAUSBURE_DIV1BURE_ART2BUST_S7-1-47TAR31AM
+
+## Start with getting to this page, than we can break down from there
+- Payload:
+  - JobId : 427497
+  - productId : 11378
+https://library.municode.com/ca/orange_county/codes/code_of_ordinances
+
+What is clientId ?
+  - ClientId is tied to ClientName which is synonemous with the County
+What is JobId ?
+
+What is productId ?
+  - Can be acquired from https://api.municode.com/ClientContent/${ClientId}

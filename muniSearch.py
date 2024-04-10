@@ -22,8 +22,12 @@ def muni(URL):
   def standard(URL): 
     session = HTMLSession()
     headers = {"user-agent":"Mozilla/5.0"}
-    page = session.get(URL, headers=headers)  
-    page.html.render(sleep=5)
+    page = session.get(URL, headers=headers) 
+
+    script = """
+                console.log("hello world")
+    """
+    page.html.render(script=script, sleep=3)
     print("session header: ", page.request.headers)
 
 
@@ -34,11 +38,12 @@ def muni(URL):
     ui_view = codes_container_element.find('ui-view')
     zones_element = ui_view.find('div', class_='zones')
     section_elements = soup.find_all('sections')
-    toc_element = zones_element.find(id='toc')
+    toc_button_element = zones_element.find(class_='container-fluid').find('button')
     #toc_section_element = zone_body_element.find(id='toc')
     # toc_zone_body_element = toc_section_element.find('div', class_='toc-zone-body')
     # toc_wrapper_element = zone_body_element.find(id='genToc')
 
-    print(zones_element)
+    print(toc_button_element)
 
-  testJSON(apiURL)
+  # testJSON(apiURL)
+  standard(URL)
