@@ -1,47 +1,69 @@
 import requests
-from requests_html import HTMLSession
-from bs4 import BeautifulSoup
 import inquirer
-import countySearch
+import pprint
+# API for state list - https://api.municode.com/States/
+# API for County list - https://api.municode.com/Clients/stateAbbr?stateAbbr=va
+# API for Client Content - https://api.municode.com/ClientContent/5478
+# API for Jobs - https://api.municode.com/Jobs/latest/14114
+# API for Code of Ordinances TOC - https://api.municode.com/codesToc?jobId=450310&productId=14114
+# API for TOC Contents - https://api.municode.com/codesToc/children?jobId=450310&nodeId=CH1GEPR&productId=14114
+# API for last child of TOC Contents - https://api.municode.com/CodesContent?jobId=450310&nodeId=CH1GEPR_S1-1HOCODECI&productId=14114
 
-session = HTMLSession()
-URL = 'https://library.municode.com/'
-headers = {"user-agent":"Mozilla/5.0"}
-page = session.get(URL, headers=headers)
-page.html.render(sleep = 3)
-print("session header: ", page.request.headers)
-# Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36
+pp = pprint.PrettyPrinter(indent=4)
 
-soup = BeautifulSoup(page.html.html, 'html.parser')
-states_elements_container = soup.find_all('div', class_='container-fluid')[1]
-#print("states list: ", states_container)
+def getAPI(URL):
+  results = requests.get(URL)
+  return results
 
-state_elements = states_elements_container.find_all('li')
-#print("states count ", len(states))
-#print("states list: ", states)
+# STEP 1 - Select state and get ${stateAbbr} from https://api.municode.com/States/
+URL = "https://api.municode.com/States/"
+headers = ""
+r = getAPI(URL)
+pp.pprint(r.json())
+
+
 stateDict = {}
-for state_element in state_elements:
-  state = state_element.text.strip()
-  link = state_element.find("a")["href"]
-  stateDict[state] = link
+for index in r.json():
+  stateName = index['StateName']
+  stateAbbr = index['StateAbbreviation']
+  stateDict[stateAbbr] = stateName
+  # print(stateAbbr + " : " + stateName)
+pp.pprint(stateDict)
 
-# for x in stateDict:
-#   print(x + " : " + stateDict[x])
+
+for key in stateDict:
+  print ("the key name is " + key + " and its value is " + stateDict[key])
+
 
 questions = [
-  inquirer.List('state',
+  inquirer.List('states',
                 message="Please select a state to search:",
-              #  choices=stateDict.keys(),
+              #  choices=stateDict.values(),)
               choices=["Virginia"],)
 ]
-#state user selected
 answers = inquirer.prompt(questions)
-print(answers['state'])
-for x in stateDict:
-  if(answers['state'] == x): 
-    #search for a list of counties in the selected state
-    countySearch.county(stateDict[x])    
+print("You chose: ", answers['states'])
+
+stateAbbr = ''
+for key in stateDict:
+  if (stateDict[key] == answers['states']):
+    stateAbbr = key
+    break
+print("The abbreviation is: ", stateAbbr)
 
 
+# STEP 2 - Select county and get ${clientId} from https://api.municode.com/Clients/stateAbbr?stateAbbr=${stateAbbr}
+def getCounty(stateAbbr):
+  URL = f'https://api.municode.com/Clients/stateAbbr?stateAbbr={stateAbbr}'
+  print(URL)
+  r = requests.get(URL)
+  pp.pprint(r.json())
 
-  
+getCounty(stateAbbr)
+   
+
+# STEP 3 - Get ${productId} from https://api.municode.com/ClientContent/{clientId}
+# STEP 4 - Get ${jobId} from https://api.municode.com/Jobs/latest/{productId}
+# STEP 5 - Get list of TOC children ${tocNodeId} from https://api.municode.com/codesToc?jobId={jobId}&productId={productId}
+# STEP 6 - Get list of Child Nodes ${childNodeId} from https://api.municode.com/codesToc/children?jobId={jobId}&nodeId={nodeId}&productId={productId}
+# STEP 7 - Get text content of final child node from https://api.municode.com/CodesContent?jobId={jobId}&nodeId={nodeId}&productId={productId}
