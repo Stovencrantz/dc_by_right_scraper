@@ -1,6 +1,7 @@
 import requests
 import inquirer
 import pprint
+import time
 # API for state list - https://api.municode.com/States/
 # API for County list - https://api.municode.com/Clients/stateAbbr?stateAbbr=va
 # API for Client Content - https://api.municode.com/ClientContent/5478
@@ -19,37 +20,33 @@ def getAPI(URL):
 URL = "https://api.municode.com/States/"
 headers = ""
 r = getAPI(URL)
-pp.pprint(r.json())
+# Append to this dictionary so that we can loop through ALL code lines for each county for each state
+# Add true/false flag for detecting of 'data center' or 'data processing' keywords
+# Add link to be sent back to user
+# This data is what we will pass in our dataframe at the end.
 
+# locationDict = {
+#   'clientName' : {
+#     'stateAbbr' : "",
+#     'ClientId' : '',
+#     'productId' : '',
+#     'jobId' : '',
+#     'nodeId' : '',
+#     'search' : {
+#       'terms' : '',
+#       'results' : '',
+#       'link' : ''
+#     }
+#   }
+# }
+
+locationDict = {}
 
 stateDict = {}
 for index in r.json():
   stateName = index['StateName']
   stateAbbr = index['StateAbbreviation']
   stateDict[stateAbbr] = stateName
-  # print(stateAbbr + " : " + stateName)
-pp.pprint(stateDict)
-
-
-for key in stateDict:
-  print ("the key name is " + key + " and its value is " + stateDict[key])
-
-
-questions = [
-  inquirer.List('states',
-                message="Please select a state to search:",
-              #  choices=stateDict.values(),)
-              choices=["Virginia"],)
-]
-answers = inquirer.prompt(questions)
-print("You chose: ", answers['states'])
-
-stateAbbr = ''
-for key in stateDict:
-  if (stateDict[key] == answers['states']):
-    stateAbbr = key
-    break
-print("The abbreviation is: ", stateAbbr)
 
 
 # STEP 2 - Select county and get ${clientId} from https://api.municode.com/Clients/stateAbbr?stateAbbr=${stateAbbr}
@@ -57,11 +54,39 @@ def getCounty(stateAbbr):
   URL = f'https://api.municode.com/Clients/stateAbbr?stateAbbr={stateAbbr}'
   print(URL)
   r = requests.get(URL)
-  pp.pprint(r.json())
+  #pp.pprint(r.json())
 
-getCounty(stateAbbr)
-   
+  for client in r.json():
+    pp.pprint(client)
+    # print(f"{client['ClientName']}  : {client['ClientID']}")
+    # clientDict['client'] = client['ClientName']
+    clientDict = {
+    'stateAbbr' : stateAbbr,
+    'ClientId' : client['ClientID'],
+    'productId' : '',
+    'jobId' : '',
+    'nodeId' : '',
+    'search' : {
+      'terms' : '',
+      'results' : '',
+      'link' : ''
+    }
+  }
+    locationDict[client['ClientName']] = clientDict
 
+# limiting loop for development, remove index on prod
+# index=0
+# for key in stateDict:
+#   if key==3:
+#     break
+#   getCounty(key) 
+#   index+=1
+#   time.sleep(1)  
+for key in stateDict:
+  if key == 'VA':
+    getCounty(key)
+pp.pprint(locationDict)
+print(len(locationDict))
 # STEP 3 - Get ${productId} from https://api.municode.com/ClientContent/{clientId}
 # STEP 4 - Get ${jobId} from https://api.municode.com/Jobs/latest/{productId}
 # STEP 5 - Get list of TOC children ${tocNodeId} from https://api.municode.com/codesToc?jobId={jobId}&productId={productId}

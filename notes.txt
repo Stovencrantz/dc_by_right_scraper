@@ -34,6 +34,8 @@ https://library.municode.com/ca/orange_county/codes/code_of_ordinances
 What is clientId ?
   - ClientId is tied to ClientName which is synonemous with the County
 What is JobId ?
+ - Takes you to the table of contents for the code of ordinances
 
 What is productId ?
   - Can be acquired from https://api.municode.com/ClientContent/${ClientId}
+  - is the code for obtaining the code of ordinances for a specific county+state combo 
