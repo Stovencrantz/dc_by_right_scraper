@@ -2,6 +2,7 @@ import requests
 import inquirer
 import pprint
 import time
+from routes import getProduct, getAPI
 # API for state list - https://api.municode.com/States/
 # API for County list - https://api.municode.com/Clients/stateAbbr?stateAbbr=va
 # API for Client Content - https://api.municode.com/ClientContent/5478
@@ -11,10 +12,6 @@ import time
 # API for last child of TOC Contents - https://api.municode.com/CodesContent?jobId=450310&nodeId=CH1GEPR_S1-1HOCODECI&productId=14114
 
 pp = pprint.PrettyPrinter(indent=4)
-
-def getAPI(URL):
-  results = requests.get(URL)
-  return results
 
 # STEP 1 - Select state and get ${stateAbbr} from https://api.municode.com/States/
 URL = "https://api.municode.com/States/"
@@ -41,7 +38,7 @@ r = getAPI(URL)
 # }
 
 locationDict = {}
-
+count = 0
 stateDict = {}
 for index in r.json():
   stateName = index['StateName']
@@ -52,17 +49,15 @@ for index in r.json():
 # STEP 2 - Select county and get ${clientId} from https://api.municode.com/Clients/stateAbbr?stateAbbr=${stateAbbr}
 def getCounty(stateAbbr):
   URL = f'https://api.municode.com/Clients/stateAbbr?stateAbbr={stateAbbr}'
-  print(URL)
+  #print(URL)
   r = requests.get(URL)
   #pp.pprint(r.json())
 
+  j = 0
   for client in r.json():
-    pp.pprint(client)
-    # print(f"{client['ClientName']}  : {client['ClientID']}")
-    # clientDict['client'] = client['ClientName']
     clientDict = {
     'stateAbbr' : stateAbbr,
-    'ClientId' : client['ClientID'],
+    'clientId' : client['ClientID'],
     'productId' : '',
     'jobId' : '',
     'nodeId' : '',
@@ -72,22 +67,33 @@ def getCounty(stateAbbr):
       'link' : ''
     }
   }
-    locationDict[client['ClientName']] = clientDict
+    clientName = client['ClientName']
+    locationDict[clientName] = clientDict
+    currentClient = locationDict[clientName]
+    url = f"https://api.municode.com/ClientContent/{clientDict['clientId']}"
+    currentClient['productId'] = getProduct(url)
+    print('main productId: ', currentClient['productId'])
+    j+=1
+    if j==3:
+      break
+  print(locationDict)
 
 # limiting loop for development, remove index on prod
-# index=0
 # for key in stateDict:
-#   if key==3:
+#   if index==3:
 #     break
 #   getCounty(key) 
 #   index+=1
 #   time.sleep(1)  
+j = 0
 for key in stateDict:
   if key == 'VA':
     getCounty(key)
-pp.pprint(locationDict)
+  
 print(len(locationDict))
+
 # STEP 3 - Get ${productId} from https://api.municode.com/ClientContent/{clientId}
+
 # STEP 4 - Get ${jobId} from https://api.municode.com/Jobs/latest/{productId}
 # STEP 5 - Get list of TOC children ${tocNodeId} from https://api.municode.com/codesToc?jobId={jobId}&productId={productId}
 # STEP 6 - Get list of Child Nodes ${childNodeId} from https://api.municode.com/codesToc/children?jobId={jobId}&nodeId={nodeId}&productId={productId}
