@@ -15,3 +15,8 @@ def getProduct(URL):
   print('routes productId: ', productId)
   return productId
   
+def getJob(URL):
+  print("Job Url: ", URL)
+  r = getAPI(URL)
+  jobId = r.json()['Id']
+  return jobId

@@ -2,7 +2,7 @@ import requests
 import inquirer
 import pprint
 import time
-from routes import getProduct, getAPI
+from routes import getAPI, getProduct, getJob
 # API for state list - https://api.municode.com/States/
 # API for County list - https://api.municode.com/Clients/stateAbbr?stateAbbr=va
 # API for Client Content - https://api.municode.com/ClientContent/5478
@@ -70,9 +70,15 @@ def getCounty(stateAbbr):
     clientName = client['ClientName']
     locationDict[clientName] = clientDict
     currentClient = locationDict[clientName]
-    url = f"https://api.municode.com/ClientContent/{clientDict['clientId']}"
-    currentClient['productId'] = getProduct(url)
+    # STEP 3 - Get ${productId} from https://api.municode.com/ClientContent/{clientId}
+    clientUrl = f"https://api.municode.com/ClientContent/{clientDict['clientId']}"
+    currentClient['productId'] = getProduct(clientUrl)
     print('main productId: ', currentClient['productId'])
+
+    # STEP 4 - Get ${jobId} from https://api.municode.com/Jobs/latest/{productId}
+    jobUrl = f"https://api.municode.com/Jobs/latest/{currentClient['productId']}"
+    currentClient['jobId'] = getJob(jobUrl)
+
     j+=1
     if j==3:
       break
@@ -92,9 +98,7 @@ for key in stateDict:
   
 print(len(locationDict))
 
-# STEP 3 - Get ${productId} from https://api.municode.com/ClientContent/{clientId}
 
-# STEP 4 - Get ${jobId} from https://api.municode.com/Jobs/latest/{productId}
 # STEP 5 - Get list of TOC children ${tocNodeId} from https://api.municode.com/codesToc?jobId={jobId}&productId={productId}
 # STEP 6 - Get list of Child Nodes ${childNodeId} from https://api.municode.com/codesToc/children?jobId={jobId}&nodeId={nodeId}&productId={productId}
 # STEP 7 - Get text content of final child node from https://api.municode.com/CodesContent?jobId={jobId}&nodeId={nodeId}&productId={productId}
