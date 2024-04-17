@@ -34,3 +34,7 @@ def getToc(URL):
     tocList.append(tempDict)
  # pp.pprint(tocList)
   return tocList
+
+def getNodes(URL):
+  r = getAPI(URL)
+  print(f"{r.status_code} : {URL}")

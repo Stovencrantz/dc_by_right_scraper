@@ -2,7 +2,7 @@ import requests
 import inquirer
 import pprint
 import time
-from routes import getAPI, getProduct, getJob, getToc
+from routes import getAPI, getProduct, getJob, getToc, getNodes
 # API for state list - https://api.municode.com/States/
 # API for County list - https://api.municode.com/Clients/stateAbbr?stateAbbr=va
 # API for Client Content - https://api.municode.com/ClientContent/5478
@@ -82,11 +82,12 @@ def getCounty(stateAbbr):
     # STEP 5 - Get list of TOC children ${tocNodeId} from https://api.municode.com/codesToc?jobId={jobId}&productId={productId}
     tocUrl = f"https://api.municode.com/codesToc?jobId={currentClient['jobId']}&productId={currentClient['productId']}"
     currentClient['tocItems'] = getToc(tocUrl)
-
     # STEP 6 - Get list of Child Nodes ${childNodeId} from https://api.municode.com/codesToc/children?jobId={jobId}&nodeId={nodeId}&productId={productId}
-    # if node list has children, append their NodeId's to a list. 
+    # Check if TOC list node has children, if True, make API call to that node and repeat the process, until HasChildren = false
     for node in currentClient['tocItems']:
-      nodesUrl = f"https://api.municode.com/codesToc/children?jobId={currentClient[jobId]}&nodeId={node['Id']}&productId={currentClient['productId']}"
+      if node['hasChildren'] == True:
+        nodesUrl = f"https://api.municode.com/codesToc/children?jobId={currentClient['jobId']}&nodeId={node['id']}&productId={currentClient['productId']}"
+        getNodes(nodesUrl)
     j+=1
     if j==3:
       break
@@ -103,7 +104,7 @@ for key in stateDict:
   if key == 'VA':
     getCounty(key)
   
-print(locationDict)
+#print(locationDict)
 
 
 # STEP 7 - Get text content of final child node from https://api.municode.com/CodesContent?jobId={jobId}&nodeId={nodeId}&productId={productId}
