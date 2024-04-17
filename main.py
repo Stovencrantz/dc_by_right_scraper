@@ -2,7 +2,7 @@ import requests
 import inquirer
 import pprint
 import time
-from routes import getAPI, getProduct, getJob
+from routes import getAPI, getProduct, getJob, getToc
 # API for state list - https://api.municode.com/States/
 # API for County list - https://api.municode.com/Clients/stateAbbr?stateAbbr=va
 # API for Client Content - https://api.municode.com/ClientContent/5478
@@ -60,7 +60,7 @@ def getCounty(stateAbbr):
     'clientId' : client['ClientID'],
     'productId' : '',
     'jobId' : '',
-    'nodeId' : '',
+    'tocItems' : '',
     'search' : {
       'terms' : '',
       'results' : '',
@@ -79,10 +79,17 @@ def getCounty(stateAbbr):
     jobUrl = f"https://api.municode.com/Jobs/latest/{currentClient['productId']}"
     currentClient['jobId'] = getJob(jobUrl)
 
+    # STEP 5 - Get list of TOC children ${tocNodeId} from https://api.municode.com/codesToc?jobId={jobId}&productId={productId}
+    tocUrl = f"https://api.municode.com/codesToc?jobId={currentClient['jobId']}&productId={currentClient['productId']}"
+    currentClient['tocItems'] = getToc(tocUrl)
+
+    # STEP 6 - Get list of Child Nodes ${childNodeId} from https://api.municode.com/codesToc/children?jobId={jobId}&nodeId={nodeId}&productId={productId}
+    # if node list has children, append their NodeId's to a list. 
+    for node in currentClient['tocItems']:
+      nodesUrl = f"https://api.municode.com/codesToc/children?jobId={currentClient[jobId]}&nodeId={node['Id']}&productId={currentClient['productId']}"
     j+=1
     if j==3:
       break
-  print(locationDict)
 
 # limiting loop for development, remove index on prod
 # for key in stateDict:
@@ -96,9 +103,7 @@ for key in stateDict:
   if key == 'VA':
     getCounty(key)
   
-print(len(locationDict))
+print(locationDict)
 
 
-# STEP 5 - Get list of TOC children ${tocNodeId} from https://api.municode.com/codesToc?jobId={jobId}&productId={productId}
-# STEP 6 - Get list of Child Nodes ${childNodeId} from https://api.municode.com/codesToc/children?jobId={jobId}&nodeId={nodeId}&productId={productId}
 # STEP 7 - Get text content of final child node from https://api.municode.com/CodesContent?jobId={jobId}&nodeId={nodeId}&productId={productId}
