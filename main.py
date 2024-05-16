@@ -2,7 +2,7 @@ import requests
 import inquirer
 import pprint
 import time
-from routes import getAPI, getProduct, getJob, getToc, getNodes
+from routes import getAPI, getProduct, getJob, getToc, getNodes, getCodeContent
 # API for state list - https://api.municode.com/States/
 # API for County list - https://api.municode.com/Clients/stateAbbr?stateAbbr=va
 # API for Client Content - https://api.municode.com/ClientContent/5478
@@ -85,11 +85,17 @@ def getCounty(stateAbbr):
     # STEP 6 - Get list of Child Nodes ${childNodeId} from https://api.municode.com/codesToc/children?jobId={jobId}&nodeId={nodeId}&productId={productId}
     # Check if TOC list node has children, if True, make API call to that node and repeat the process, until HasChildren = false
     for node in currentClient['tocItems']:
+      print("parent: ")
+      pp.pprint(node)
       if node['hasChildren'] == True:
         nodesUrl = f"https://api.municode.com/codesToc/children?jobId={currentClient['jobId']}&nodeId={node['id']}&productId={currentClient['productId']}"
         getNodes(nodesUrl)
+      else:
+        codeContentUrl = f"https://api.municode.com/CodesContent?jobId={currentClient['jobId']}&nodeId={node['id']}&productId={currentClient['productId']}"
+        #getCodeContent(codeContentUrl)
+        
     j+=1
-    if j==3:
+    if j==1:
       break
 
 # limiting loop for development, remove index on prod

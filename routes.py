@@ -1,5 +1,6 @@
 import requests
 import pprint
+from bs4 import BeautifulSoup
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -34,6 +35,15 @@ def getToc(URL):
     tocList.append(tempDict)
  # pp.pprint(tocList)
   return tocList
+
+def getCodeContent(URL):
+  r = getAPI(URL)
+  print(f"{r.status_code} : {URL}")
+  content = r.json()['Docs'][0]['Content']
+  soup = BeautifulSoup(content, 'html.parser')
+  print(soup.prettify())
+  #pp.pprint(content)
+  
 
 def getNodes(URL):
   r = getAPI(URL)
